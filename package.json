@@ -1,17 +1,33 @@
 {
     "name": "@yaireo/tagify",
-    "version": "3.17.7",
+    "version": "3.20.3",
     "homepage": "https://github.com/yairEO/tagify",
     "description": "lightweight, efficient Tags input component in Vanilla JS / React / Angular [super customizable, tiny size & top performance]",
+    "keywords": [
+        "tags",
+        "tagging",
+        "component",
+        "tag",
+        "ui"
+    ],
     "license": "MIT",
     "_npmUser": {
         "name": "vsync",
         "email": "vsync.design@gmail.com"
     },
+    "browserslist": [
+        ">1%",
+        "not dead",
+        "not ie < 11",
+        "not IE_Mob 11",
+        "not op_mini all"
+    ],
     "scripts": {
-        "start": "npx gulp@3.9.1",
+        "start": "npx gulp@4.0.2",
         "test": "jest",
-        "serve": "npx http-server -o index.html -c-1"
+        "serve": "npx http-server -o index.html -c-1",
+        "push": "git push origin",
+        "push:tags": "git push origin --tags"
     },
     "jest": {
         "preset": "jest-puppeteer"

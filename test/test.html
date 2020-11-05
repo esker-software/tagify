@@ -7,8 +7,7 @@
         <meta name="author" content="Yair Even-Or">
         <meta name="viewport" content="width=device-width">
         <link rel="stylesheet" href="../dist/tagify.css">
-
-        <script src="../dist/tagify.js"></script>
+        <script src="../dist/tagify.min.js"></script>
 
         <style>
             body{ font: 16px Arial; }
@@ -16,18 +15,20 @@
                 max-width:600px;
             }
 
+            form > section{ margin-bottom: 2em; }
+
             .tagify+input, .tagify+textarea {
                 display: initial!important;
                 width: 100%;
-                margin-top: -1.5em;
+                margin-top: .2em;
                 min-height: 11ch;
                 background: powderblue;
                 font-family: "Fira Code";
             }
 
             .tagify{
-                min-width:400px;
-                margin: 1.5em 0;
+                margin: .2em;
+                min-width: 400px;
             }
 
             /* for disabling the script */
@@ -110,9 +111,19 @@
 
             <section id='section-mix'>
                 <textarea name='simple-mix' placeholder="type something">and[[   [[alice]] text [[bob]] [[foo]], [[alice]], [[foo]]</textarea>
-                <textarea name='mix' placeholder="type something">
-                  [[{"id":101, "value":"cartman", "title":"Eric Cartman", "prefix":"@"}]] and [[{"id":500, "value":"cartman", "title":"xxx", "prefix":"@"}]] [[kyle]] do not know [[homer simpson]] because he's a
+
+                <textarea name='mix' class='tagify-editor' placeholder="type something">
+                  [[{"value":101, "text":"  cartman  ", "title":"Eric Cartman", "prefix":"@"}]] and [[{"value":500, "text":"cartman", "title":"xxx", "prefix":"@", "readonly":true}]] [[kyle]] do not know [[homer simpson]] because he's a
+and [[{"value": "readonly", "readonly":true}]]
                 </textarea>
+            </section>
+
+            <section id='section-markdown'>
+                <section class='toolbar'>
+                    <button type='button' value='bold'>Bold</button>
+                    <button type='button' value='italic'>Italic</button>
+                </section>
+                <textarea name='markdown' placeholder="type something">and this is so cool [   [[alice]] text [[bob]] [[foo]], [[alice]], [[foo]]</textarea>
             </section>
 
             <section id='section-outside-of-the-box'>
@@ -144,12 +155,12 @@
               <input name='tags-select-mode' class='selectMode' placeholder="Please select" />
             </section>
         </form>
-
 <script>
   document.forms[0].reset()
 
   window.tagified = {
-    "mix"               : 1,
+    "mix"               : 0,
+    "markdown"          : 0,
     "basic"             : 1,
     "textarea"          : 0,
     "manual-suggestions": 0,
@@ -212,27 +223,23 @@
         ]
     })
 
-    emptyJSONTagify.on('input', function(e){
-      console.log(11111, "input")
-    })
-
-    emptyJSONTagify.on('keydown', function(e){
-      console.log(2222, "keydown")
-    })
-
 
 
     var tagify3 = new Tagify(sectionElm.querySelector('input[name=value_JSON]'), {
-      delimiters: ",|[\\n\\r]",
-      addTagOnBlur: false
+    //  delimiters: ",|[\\n\\r]",
+      addTagOnBlur: false,
+      dropdown: {
+        enabled: 0
+      },
+      whitelist: [{value:"x,y,z", id:123}]
     })
 
     // should allow adding multiple tags as 1 string with new lines
-    tagify3.addTags(
-      `a,b
-      c
-      d`
-    )
+    // tagify3.addTags(
+    //   `a,b
+    //   c
+    //   d`
+    // )
 
 
     var input = sectionElm.querySelector('input[name=tags]');
@@ -240,12 +247,15 @@
 
     // init Tagify script on the above inputs
     var tagify = new Tagify(input, {
-        pattern: /^[A-Za-z_✲ "]+$/,
+        pattern: /^[0-9A-Za-z_✲ "]+$/,
         editTags : 1,
         duplicates: false,
-        keepInvalidTags: true
+        keepInvalidTags: true,
+        // dropdown: {
+        //     enabled: 0
+        // },
         // after 2 characters typed, all matching values from this list will be suggested in a dropdown
-        // whitelist: [].concat(whitelist)
+        whitelist: [].concat(whitelist)
     })
 
     tagify.addTags( `a,a` )
@@ -255,6 +265,7 @@
   tagify.on('add', onAddTag)
         .on('remove', onRemoveTag)
         .on('input', onInput)
+        //.on('keydown', onKeyDown)
         .on('edit:beforeUpdate', onPreUpdate)
         .on('edit:start edit:keydown click', saveCaretPos)
         .on('edit:input edit:updated edit:start', e => console.log(e.type, e))
@@ -419,16 +430,18 @@
 
   var settings = {
     mode: 'mix',
+  //  maxTags: 3,
     pattern: '#',
     dropdown: {
       enabled: 1
     },
     enforceWhitelist : true,
-    whitelist:['alice','bob','foo','bar'],
+    whitelist: ['alice','bob','foo','bar'],
     duplicates: true,
   }
 
   var simpleMixTagify = new Tagify(simpleMixInput, settings);
+  simpleMixTagify.on('keydown', e => console.log(e.detail))
 
 
   //////////////////////////////
@@ -436,6 +449,7 @@
   var input = document.querySelector('[name=mix]'),
       // init Tagify script on the above inputs
       tagify = new Tagify(input, {
+          tagTextProp      : 'text',
           mode             : 'mix',  // <--  Enable mixed-content
           pattern          : /@|#/,  // <--  Tag words which start with @ or # (can be a String instead of Regex)
           duplicates       : true,
@@ -502,7 +516,7 @@
 
   var whitelist_2 = ['Homer simpson', 'Marge simpson', 'Bart', 'Lisa', 'Maggie', 'Mr. Burns', 'Ned', 'Milhouse', 'Moe'];
 
-  // A good place to pull server suggestion list accoring to the prefix/value
+  // A good place to pull server suggestion list according to the prefix/value
   tagify.on('input', async function(e){
     var prefix = e.detail.prefix,
         newWhitelist;
@@ -542,6 +556,99 @@
   })()
 </script>
 
+<script data-name='markdown'>
+(function(){
+    var settings = {
+        mode: 'mix',
+        pattern: '#',
+        enforceWhitelist : true,
+        whitelist: ['alice','bob','foo','bar'],
+        duplicates: true,
+        dropdown: {
+            enabled: 1,
+            position: 'text'
+        },
+        mixMode: {
+            // integrated: true
+        }
+    }
+
+    var tagify = new Tagify(document.querySelector('[name="markdown"]'), settings)
+
+    //var toolbarElm = document.querySelector('#section-markdown > .toolbar')
+    //toolbarElm.addEventListener('click', onToolbarClick)
+
+    function onToolbarClick(e){
+        var btnElm = e.target;
+        if( btnElm.tagName != 'BUTTON' ) return
+
+        var action = btnElm.value
+        doAction(action)
+    }
+
+    function doAction(action){
+        var wrapperElm,
+            actionToTagsMap = {"bold":"strong", "italic":"em"},
+            sel = window.getSelection(),
+            range = sel.rangeCount && sel.getRangeAt(0),
+            selectionInsideTagify = tagify.DOM.input.contains( sel.anchorNode ),
+            tagifyRange = tagify.state.selection && selectionInsideTagify ? tagify.state.selection.range : null,
+            clonedContents = tagifyRange.cloneContents(),
+            isValidSelection, parrentIsTag;
+
+        if( !action || !actionToTagsMap[action] || !range || !clonedContents.textContent ) return
+
+        // do not wrap with the same element if already one of the parents has same tagName
+        isValidSelection = range.startContainer != tagify.DOM.input   &&   tagify.DOM.input.contains(range.startContainer)
+        if( !isValidSelection ) return
+
+        parrentIsTag = closestByTagName(range.startContainer, actionToTagsMap[action], tagify.DOM.input);
+
+        if( parrentIsTag ){
+            return undoTag(range, actionToTagsMap[action])
+        }
+
+        wrapperElm = document.createElement(actionToTagsMap[action])
+        range.surroundContents(wrapperElm)
+
+        tagify.placeCaretAfterNode(wrapperElm)
+        //var previousContent = range.extractContents()
+        //range.insertNode( tagify.parseHTML(`<${wrapper}>${previousContent}</${wrapper}>`) )
+    }
+
+    // take the selected text "outside", rebuild needed tags around it, and re-place it in the DOM
+    // TBD - https://jsbin.com/balagih/edit?html,js,output
+    function undoTag(range, tagName){
+        var {endContainer:{length}, startOffset, endOffset} = range;
+    }
+
+    function getSelectedTextWrapperTags(range){
+        var p = range.startContainer,
+            endNode = tagify.DOM.input,
+            extracted = range.extractContents(),
+            wrappers;
+
+        while(p){
+            p = p.parentNode == endNode ? null : p.parentNode
+            wrappers.push(p.tagName)
+        }
+
+        return wrappers
+    }
+
+    function closestByTagName(startNode, tagName, endNode){
+        var p = startNode
+
+        while(p){
+            p = p.parentNode == endNode ? null : p.parentNode
+            if( p && p.tagName.toLowerCase() == tagName )
+                return p
+        }
+
+        return false
+    }
+})()
+</script>
 
 <script data-name="outside-of-the-box">
   tagified["outside-of-the-box"] && (function(){
@@ -974,6 +1081,5 @@ tagified["mode-select"] && (function(){
     }
 })()
 </script>
-
-    </body>
+</body>
 </html>
