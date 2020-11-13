@@ -375,6 +375,8 @@ Similar to native `<Select>` element, but allows typing text as value.
 
 ## React
 
+See [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for React integration examples.
+
 A Tagify React component is exported from [`react.tagify.js`](https://github.com/yairEO/tagify/blob/master/dist/react.tagify.js):
 
 > Note: You will need to inport Tagify's CSS also, either by javasceript or by SCSS `@import` (which is preferable)
@@ -449,7 +451,6 @@ onBlur                  | <sub>Function</sub>       |           | See [*events* 
 
 ---
 
-### See [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for React integration examples.
 
 
 ## Angular
@@ -743,7 +744,7 @@ Name                       | Parameters                                         
 `injectAtCaret`            | `HTMLElement` <sub>(`injectedNode`)</sub>, `Object` <sub>(`range`)</sub>                | Injects text or HTML node at last caret position. `range` parameter is *optional*
 `placeCaretAfterNode`      | `HTMLElement`                                                             | Places the caret after a given node
 `insertAfterTag`           | `HTMLElement` <sub>(tag element)</sub>, `HTMLElement`/`String` <sub>(whatever to insert after)</sub> |
-`toggleInvalidClass`       | `Boolean`                                                                               | Toggles `tagify--invalid` class to the Tagify wrapper element
+`toggleClass`              | `Boolean`                                                                               | Toggles `class` on the main *tagify* container (`scope`)
 `dropdown.selectAll`       |                                                                                         | Add **all** whitelist items as tags and close the suggestion dropdown
 `updateValueByDOMTags`     |                                                                                         | Iterate tag DOM nodes and re-build  the `tagify.value` array (call this if tags get sorted manually)
 `parseTemplate`            | `String`/`Function` <sub>(template name or function)</sub>, `Array` <sub>(data)</sub>   | converts a template string (by selecting one from the `settings.templates` by name or supplying a template function which returns a String) into a DOM node
@@ -866,7 +867,7 @@ editTags                | <sub>Object/Number</sub>     | {}                     
 editTags.clicks         | <sub>Number</sub>            | 2                                           | Number of clicks to enter "edit-mode": 1 for single click. Any other value is considered as double-click
 editTags.keepInvalid    | <sub>Boolean</sub>           | true                                        | keeps invalid edits as-is until `esc` is pressed while in focus
 templates               | <sub>Object</sub>            | <sub>`wrapper`, `tag`, `dropdownItem`</sub> | Object consisting of functions which return template strings
-transformTag            | <sub>Function</sub>          | undefined                                   | Takes a tag data as argument and allows mutating it before a tag is created.<br>Should not `return` anything, only **mutate**.
+transformTag            | <sub>Function</sub>          | undefined                                   | Takes a tag data as argument and allows mutating it before a tag is created or edited.<br>Should not `return` anything, only **mutate**.
 keepInvalidTags         | <sub>Boolean</sub>           | false                                       | If `true`, do not remove tags which did not pass validation
 skipInvalid             | <sub>Boolean</sub>           | false                                       | If `true`, do not add invalid, temporary, tags before automatically removing them
 backspace               | <sub>*</sub>                 | true                                        | On pressing backspace key:<br> `true` - remove last tag <br>`edit` - edit last tag
